@@ -48,9 +48,15 @@ type GuestVotingScreenProps = {
   code: string;
   session: GameSession;
   question: Question;
+  isInteractive?: boolean;
 };
 
-function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) {
+function GuestVotingScreen({
+  code,
+  session,
+  question,
+  isInteractive = true,
+}: GuestVotingScreenProps) {
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
@@ -59,7 +65,7 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
 
   const handleSelect = useCallback(
     async (choice: Choice) => {
-      if (isExpired || choice === selectedChoice) {
+      if (!isInteractive || isExpired || choice === selectedChoice) {
         return;
       }
 
@@ -96,7 +102,7 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
         );
       }
     },
-    [code, hasVoted, isExpired, question.id, selectedChoice],
+    [code, hasVoted, isExpired, isInteractive, question.id, selectedChoice],
   );
 
   return (
@@ -106,7 +112,7 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
         onSelect={handleSelect}
         isSubmitting={false}
         selectedChoice={selectedChoice}
-        isExpired={isExpired}
+        isExpired={isExpired || !isInteractive}
         remainingSeconds={remainingSeconds}
         timerProgress={progress}
         showTimer
@@ -114,11 +120,6 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
       {isExpired && !hasVoted ? (
         <p className="mt-6 rounded-2xl border-2 border-dashed border-stone-300 bg-white/70 px-4 py-3 text-center font-semibold text-(--ink-muted)">
           Temps écoulé ⏰
-        </p>
-      ) : null}
-      {hasVoted && isExpired ? (
-        <p className="mt-6 text-center font-semibold text-(--ink-muted)">
-          Les résultats arrivent...
         </p>
       ) : null}
       {submitError ? (
@@ -196,40 +197,28 @@ export function GuestGame({ code }: GuestGameProps) {
     );
   }
 
-  if (session.phase === "results" && question) {
-    if (result) {
-      return (
-        <GuestGameShell session={session}>
-          <ResultsPanel questionText={question.text} result={result} />
-          <p className="mt-8 text-center font-semibold text-(--ink-muted)">
-            Prochaine question bientôt...
-          </p>
-        </GuestGameShell>
-      );
-    }
-
+  if (session.phase === "results" && result && question) {
     return (
       <GuestGameShell session={session}>
-        <div className="wedding-card p-6 text-center">
-          <p className="wedding-label">Question du moment</p>
-          <h2 className="wedding-title mt-3 text-2xl leading-snug">
-            {question.text}
-          </h2>
-        </div>
+        <ResultsPanel questionText={question.text} result={result} />
         <p className="mt-8 text-center font-semibold text-(--ink-muted)">
-          Les résultats arrivent...
+          Prochaine question bientôt...
         </p>
       </GuestGameShell>
     );
   }
 
-  if (session.phase === "voting" && question) {
+  if (
+    (session.phase === "voting" || session.phase === "results") &&
+    question
+  ) {
     return (
       <GuestVotingScreen
         key={session.currentQuestionIndex}
         code={code}
         session={session}
         question={question}
+        isInteractive={session.phase === "voting"}
       />
     );
   }

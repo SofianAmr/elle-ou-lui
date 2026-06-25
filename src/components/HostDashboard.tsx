@@ -52,9 +52,11 @@ export function HostDashboard() {
 
   const question = session ? QUESTIONS[session.currentQuestionIndex] : null;
   const isLastQuestion = session?.currentQuestionIndex === QUESTIONS.length - 1;
+  const shouldPrefetchResults =
+    session?.phase === "voting" || session?.phase === "results";
   const { result } = useQuestionResult(
     session?.code ?? null,
-    session?.phase === "results" ? (question?.id ?? null) : null,
+    shouldPrefetchResults ? (question?.id ?? null) : null,
   );
 
   const handleAuth = useCallback(
@@ -345,21 +347,6 @@ export function HostDashboard() {
                   Voir les résultats →
                 </button>
               </div>
-            </motion.div>
-          ) : null}
-
-          {session.phase === "results" && question && !result ? (
-            <motion.div
-              key={`results-loading-${question.id}`}
-              className="flex min-h-0 flex-1 flex-col items-center justify-center"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-            >
-              <p className="font-semibold text-(--ink-muted)">
-                Chargement des résultats...
-              </p>
             </motion.div>
           ) : null}
 
