@@ -18,8 +18,7 @@ export default function HomePage() {
             {COUPLE.elle} & {COUPLE.lui}
           </p>
           <p className="mt-6 text-(--ink-muted)">
-            {QUESTIONS.length} questions en live. Vote depuis ton téléphone
-            pendant que l&apos;animateur projette le jeu sur le grand écran.
+            {`${QUESTIONS.length} questions en live. Ton téléphone pour voter, le grand écran pour juger — l'animateur ne fait que mettre le feu.`}
           </p>
           <Link href="/join" className="btn-primary mt-8 w-full">
             Je suis invité 🎉
