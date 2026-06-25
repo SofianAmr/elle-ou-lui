@@ -114,22 +114,35 @@ export function HostDashboard() {
     router.push("/");
   }, [router]);
 
-  const hasTriggeredResults = useRef(false);
+  const autoResultsQuestionRef = useRef<number | null>(null);
 
   useEffect(() => {
-    hasTriggeredResults.current = false;
-  }, [session?.currentQuestionIndex, session?.phase]);
+    autoResultsQuestionRef.current = null;
+  }, [session?.currentQuestionIndex]);
 
   useEffect(() => {
     if (
-      session?.phase === "voting" &&
-      isExpired &&
-      !hasTriggeredResults.current
+      session?.phase !== "voting" ||
+      !isExpired ||
+      autoResultsQuestionRef.current === session.currentQuestionIndex
     ) {
-      hasTriggeredResults.current = true;
-      runAction("show_results");
+      return;
     }
-  }, [isExpired, runAction, session?.phase]);
+
+    autoResultsQuestionRef.current = session.currentQuestionIndex;
+
+    performAction("show_results").catch((actionErr) => {
+      autoResultsQuestionRef.current = null;
+      setActionError(
+        actionErr instanceof Error ? actionErr.message : "Action impossible",
+      );
+    });
+  }, [
+    isExpired,
+    performAction,
+    session?.currentQuestionIndex,
+    session?.phase,
+  ]);
 
   if (!isAuthenticated) {
     return (
@@ -324,7 +337,7 @@ export function HostDashboard() {
                   type="button"
                   disabled={isActing}
                   onClick={() => {
-                    hasTriggeredResults.current = true;
+                    autoResultsQuestionRef.current = session.currentQuestionIndex;
                     runAction("show_results");
                   }}
                   className="btn-primary-compact"
@@ -332,6 +345,21 @@ export function HostDashboard() {
                   Voir les résultats →
                 </button>
               </div>
+            </motion.div>
+          ) : null}
+
+          {session.phase === "results" && question && !result ? (
+            <motion.div
+              key={`results-loading-${question.id}`}
+              className="flex min-h-0 flex-1 flex-col items-center justify-center"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2 }}
+            >
+              <p className="font-semibold text-(--ink-muted)">
+                Chargement des résultats...
+              </p>
             </motion.div>
           ) : null}
 

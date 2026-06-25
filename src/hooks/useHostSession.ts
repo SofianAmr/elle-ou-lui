@@ -136,13 +136,29 @@ export function useHostSession() {
             show_qr: boolean;
           };
 
-          setSession({
-            id: row.id,
-            code: row.code,
-            phase: row.phase,
-            currentQuestionIndex: row.current_question_index,
-            votingStartedAt: row.voting_started_at,
-            showQr: row.show_qr,
+          setSession((current) => {
+            const next: GameSession = {
+              id: row.id,
+              code: row.code,
+              phase: row.phase,
+              currentQuestionIndex: row.current_question_index,
+              votingStartedAt: row.voting_started_at,
+              showQr: row.show_qr,
+            };
+
+            if (
+              current &&
+              current.id === next.id &&
+              current.code === next.code &&
+              current.phase === next.phase &&
+              current.currentQuestionIndex === next.currentQuestionIndex &&
+              current.votingStartedAt === next.votingStartedAt &&
+              current.showQr === next.showQr
+            ) {
+              return current;
+            }
+
+            return next;
           });
         },
       )
