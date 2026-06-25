@@ -225,6 +225,7 @@ export function HostDashboard() {
       />
 
       <HostFloatingControls
+        code={session.code}
         isFullscreen={isFullscreen}
         onToggleMenu={() => setAdminMenuOpen((open) => !open)}
         onToggleFullscreen={toggleFullscreen}

@@ -53,22 +53,21 @@ type GuestVotingScreenProps = {
 function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) {
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
   const { remainingSeconds, progress, isExpired } = useTimer(session.votingStartedAt);
 
   const handleSelect = useCallback(
     async (choice: Choice) => {
-      if (isSubmitting || isExpired) {
+      if (isExpired || choice === selectedChoice) {
         return;
       }
 
-      if (choice === selectedChoice) {
-        return;
-      }
+      const previousChoice = selectedChoice;
+      const hadVoted = hasVoted;
 
-      setIsSubmitting(true);
+      setSelectedChoice(choice);
+      setHasVoted(true);
       setSubmitError(null);
 
       try {
@@ -87,20 +86,17 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
         if (!response.ok) {
           throw new Error(data.error ?? "Impossible d'enregistrer le vote");
         }
-
-        setSelectedChoice(choice);
-        setHasVoted(true);
       } catch (voteError) {
+        setSelectedChoice(previousChoice);
+        setHasVoted(hadVoted);
         setSubmitError(
           voteError instanceof Error
             ? voteError.message
             : "Une erreur est survenue",
         );
-      } finally {
-        setIsSubmitting(false);
       }
     },
-    [code, isExpired, isSubmitting, question.id, selectedChoice],
+    [code, hasVoted, isExpired, question.id, selectedChoice],
   );
 
   return (
@@ -108,7 +104,7 @@ function GuestVotingScreen({ code, session, question }: GuestVotingScreenProps) 
       <QuestionCard
         question={question}
         onSelect={handleSelect}
-        isSubmitting={isSubmitting}
+        isSubmitting={false}
         selectedChoice={selectedChoice}
         isExpired={isExpired}
         remainingSeconds={remainingSeconds}

@@ -181,10 +181,12 @@ export function HostRoomHeader({
 }
 
 export function HostFloatingControls({
+  code,
   isFullscreen,
   onToggleMenu,
   onToggleFullscreen,
 }: {
+  code: string;
   isFullscreen: boolean;
   onToggleMenu: () => void;
   onToggleFullscreen: () => void;
@@ -192,16 +194,24 @@ export function HostFloatingControls({
   if (!isFullscreen) return null;
 
   return (
-    <div className="pointer-events-none fixed right-3 top-3 z-40 flex gap-1.5 opacity-25 transition-opacity hover:opacity-100">
-      <div className="pointer-events-auto relative">
-        <IconButton label="Quitter le plein écran" onClick={onToggleFullscreen}>
-          <FullscreenIcon exit />
-        </IconButton>
-      </div>
-      <div className="pointer-events-auto relative">
-        <IconButton label="Menu animateur" onClick={onToggleMenu}>
-          <MenuIcon />
-        </IconButton>
+    <div className="pointer-events-none fixed inset-x-3 top-3 z-40 flex items-center justify-between gap-3">
+      <p
+        className="pointer-events-none rounded-full border border-(--gold)/40 bg-white/80 px-3 py-1 font-mono text-sm font-extrabold tracking-[0.25em] text-(--ink) backdrop-blur-sm"
+        aria-label={`Code de la salle : ${code}`}
+      >
+        {code}
+      </p>
+      <div className="flex gap-1.5 opacity-25 transition-opacity hover:opacity-100">
+        <div className="pointer-events-auto relative">
+          <IconButton label="Quitter le plein écran" onClick={onToggleFullscreen}>
+            <FullscreenIcon exit />
+          </IconButton>
+        </div>
+        <div className="pointer-events-auto relative">
+          <IconButton label="Menu animateur" onClick={onToggleMenu}>
+            <MenuIcon />
+          </IconButton>
+        </div>
       </div>
     </div>
   );
