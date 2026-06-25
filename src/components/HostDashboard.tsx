@@ -19,6 +19,7 @@ import { ResultsPanel } from "@/components/ResultsPanel";
 import { QrOverlay } from "@/components/RoomHeader";
 import { useFullscreen } from "@/hooks/useFullscreen";
 import { useHostSession } from "@/hooks/useHostSession";
+import { useParticipant } from "@/hooks/useParticipant";
 import { useQuestionResult } from "@/hooks/useQuestionResult";
 import { useSessionStats } from "@/hooks/useSessionStats";
 import { useTimer } from "@/hooks/useTimer";
@@ -43,6 +44,7 @@ export function HostDashboard() {
 
   const { session, isLoading, error, loadSession, performAction } =
     useHostSession();
+  useParticipant(session?.code ?? null, { asHost: true });
   const stats = useSessionStats(session?.code ?? null, Boolean(session));
   const { remainingSeconds, progress, isExpired } = useTimer(
     session?.phase === "voting" ? session.votingStartedAt : null,
@@ -271,9 +273,8 @@ export function HostDashboard() {
         {session.phase === "lobby" ? (
           <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[clamp(0.5rem,2vh,1rem)] text-center">
             <div className="animate-float text-[clamp(2.5rem,6vmin,4rem)]">
-              🥂
+              💍
             </div>
-            <p className="wedding-label">Lobby</p>
             <h1 className="wedding-title text-[clamp(2rem,5vmin,3.5rem)] italic">
               Elle ou Lui ?
             </h1>
@@ -393,6 +394,7 @@ export function HostDashboard() {
       {showLocalQr || session.showQr ? (
         <QrOverlay
           code={session.code}
+          connectedCount={stats.connectedCount}
           onClose={() => {
             setShowLocalQr(false);
             runAction("toggle_qr", { showQr: false });

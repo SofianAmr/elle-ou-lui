@@ -25,6 +25,7 @@ export async function GET(_request: Request, context: RouteContext) {
         .from("participants")
         .select("*", { count: "exact", head: true })
         .eq("game_session_id", session.id)
+        .eq("is_host", false)
         .gte("last_seen_at", cutoff),
       supabase
         .from("votes")

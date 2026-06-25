@@ -136,8 +136,7 @@ export function GuestGame({ code }: GuestGameProps) {
   useParticipant(code);
 
   const question = session ? QUESTIONS[session.currentQuestionIndex] : null;
-  const shouldLoadResults =
-    session?.phase === "voting" || session?.phase === "results";
+  const shouldLoadResults = session?.phase === "results";
   const { result } = useQuestionResult(
     code,
     shouldLoadResults ? (question?.id ?? null) : null,

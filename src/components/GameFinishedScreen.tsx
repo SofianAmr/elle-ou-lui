@@ -32,7 +32,7 @@ export function GameFinishedScreen({
         {COUPLE.elle} & {COUPLE.lui}
       </p>
       <p className="max-w-md text-[clamp(1rem,2vmin,1.25rem)] text-(--ink-muted)">
-        Bravo à tous les invités — c&apos;est plutôt place aux repas... 🍽️
+        Le quiz est fini, la fête continue : à table !
       </p>
       {onReset ? (
         <button

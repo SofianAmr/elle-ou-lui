@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { DecorativeBackground } from "@/components/DecorativeBackground";
@@ -38,6 +39,21 @@ export default function JoinPage() {
   return (
     <div className="relative flex min-h-full flex-1 flex-col">
       <DecorativeBackground />
+      <Link
+        href="/"
+        className="absolute left-4 top-4 z-20 inline-flex items-center gap-2 rounded-full border border-(--gold)/40 bg-white/80 px-4 py-2 text-sm font-semibold text-(--ink) backdrop-blur-sm transition hover:bg-(--gold-light)/60"
+      >
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" aria-hidden>
+          <path
+            d="M15 6l-6 6 6 6"
+            stroke="currentColor"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+        Retour
+      </Link>
       <main className="relative z-10 mx-auto flex min-h-full w-full max-w-md flex-1 flex-col justify-center px-6 py-10">
         <form
           onSubmit={handleSubmit}

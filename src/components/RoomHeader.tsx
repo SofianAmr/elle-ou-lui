@@ -52,19 +52,27 @@ export function RoomHeader({
 
 type QrOverlayProps = {
   code: string;
+  connectedCount?: number;
   onClose: () => void;
 };
 
-export function QrOverlay({ code, onClose }: QrOverlayProps) {
+export function QrOverlay({ code, connectedCount, onClose }: QrOverlayProps) {
   const joinUrl = getJoinUrl(code);
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-(--ink)/75 p-6 backdrop-blur-sm">
       <div className="wedding-card w-full max-w-lg p-10 text-center">
-        <p className="wedding-label">Rejoins la fête 🥂</p>
+        <p className="wedding-label">Rejoins la fête 💍</p>
         <p className="mt-4 font-mono text-4xl font-extrabold tracking-[0.3em] text-(--ink)">
           {code}
         </p>
+        {connectedCount !== undefined ? (
+          <p className="mt-4 rounded-2xl border-2 border-dashed border-(--gold)/50 bg-white/60 px-6 py-3 text-base font-extrabold text-(--ink)">
+            {connectedCount} personne
+            {connectedCount > 1 ? "s" : ""} connectée
+            {connectedCount > 1 ? "s" : ""}
+          </p>
+        ) : null}
         <div className="mx-auto mt-8 flex justify-center rounded-3xl border-2 border-dashed border-(--gold)/50 bg-white p-6">
           <QRCode value={joinUrl} size={220} />
         </div>

@@ -20,9 +20,13 @@ create table if not exists public.participants (
   id uuid primary key default gen_random_uuid(),
   game_session_id uuid not null references public.game_sessions (id) on delete cascade,
   session_id text not null,
+  is_host boolean not null default false,
   last_seen_at timestamptz not null default now(),
   unique (game_session_id, session_id)
 );
+
+alter table public.participants
+  add column if not exists is_host boolean not null default false;
 
 create index if not exists participants_game_session_id_idx
   on public.participants (game_session_id);

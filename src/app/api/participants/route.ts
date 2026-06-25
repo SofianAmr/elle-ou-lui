@@ -2,21 +2,25 @@ import { NextResponse } from "next/server";
 import { getSessionByCode } from "@/lib/game-session";
 import { createServerClient } from "@/lib/supabase/server";
 
-function isValidBody(body: unknown): body is { gameSessionCode: string; sessionId: string } {
+function isValidBody(
+  body: unknown,
+): body is { gameSessionCode: string; sessionId: string; isHost?: boolean } {
   if (!body || typeof body !== "object") {
     return false;
   }
 
-  const { gameSessionCode, sessionId } = body as {
+  const { gameSessionCode, sessionId, isHost } = body as {
     gameSessionCode: string;
     sessionId: string;
+    isHost?: boolean;
   };
 
   return (
     typeof gameSessionCode === "string" &&
     gameSessionCode.length > 0 &&
     typeof sessionId === "string" &&
-    sessionId.length > 0
+    sessionId.length > 0 &&
+    (isHost === undefined || typeof isHost === "boolean")
   );
 }
 
@@ -39,6 +43,7 @@ export async function POST(request: Request) {
       {
         game_session_id: session.id,
         session_id: body.sessionId,
+        is_host: Boolean(body.isHost),
         last_seen_at: new Date().toISOString(),
       },
       { onConflict: "game_session_id,session_id" },
