@@ -3,13 +3,32 @@
 import { useSyncExternalStore } from "react";
 import { VOTING_DURATION_MS } from "@/lib/game";
 
+let cachedNow = Date.now();
+let tickIntervalId: ReturnType<typeof setInterval> | null = null;
+const tickListeners = new Set<() => void>();
+
 function subscribeToTicks(onStoreChange: () => void) {
-  const interval = setInterval(onStoreChange, 100);
-  return () => clearInterval(interval);
+  tickListeners.add(onStoreChange);
+
+  if (tickIntervalId === null) {
+    cachedNow = Date.now();
+    tickIntervalId = setInterval(() => {
+      cachedNow = Date.now();
+      tickListeners.forEach((listener) => listener());
+    }, 100);
+  }
+
+  return () => {
+    tickListeners.delete(onStoreChange);
+    if (tickListeners.size === 0 && tickIntervalId !== null) {
+      clearInterval(tickIntervalId);
+      tickIntervalId = null;
+    }
+  };
 }
 
-function getNow() {
-  return Date.now();
+function getCachedNow() {
+  return cachedNow;
 }
 
 function getServerNow() {
@@ -25,7 +44,7 @@ export function useTimer(votingStartedAt: string | null) {
 
   const now = useSyncExternalStore(
     votingStartedAt ? subscribeToTicks : () => () => {},
-    getNow,
+    votingStartedAt ? getCachedNow : getServerNow,
     getServerNow,
   );
 
