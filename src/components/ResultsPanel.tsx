@@ -2,13 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
+import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import { COUPLE } from "@/data/couple";
 import { getPercent } from "@/lib/game";
+import { choiceCardFluidClass } from "@/lib/choice-card-styles";
 import type { QuestionResult } from "@/types";
 
 type DisplaySize = "sm" | "lg" | "host";
 
 type ResultsPanelProps = {
+  questionId: number;
   questionText: string;
   result: QuestionResult;
   size?: DisplaySize;
@@ -95,18 +98,24 @@ function useAnimatedPercent(target: number, delayMs: number) {
 }
 
 export function ResultsPanel({
+  questionId,
   questionText,
   result,
   size = "sm",
 }: ResultsPanelProps) {
   if (size === "host") {
     return (
-      <HostResultsLayout questionText={questionText} result={result} />
+      <HostResultsLayout
+        questionId={questionId}
+        questionText={questionText}
+        result={result}
+      />
     );
   }
 
   return (
     <GuestResultsLayout
+      questionId={questionId}
       questionText={questionText}
       result={result}
       size={size}
@@ -115,9 +124,11 @@ export function ResultsPanel({
 }
 
 function HostResultsLayout({
+  questionId,
   questionText,
   result,
 }: {
+  questionId: number;
   questionText: string;
   result: QuestionResult;
 }) {
@@ -151,11 +162,10 @@ function HostResultsLayout({
         </h2>
       </motion.div>
 
-      <div className="grid min-h-0 flex-1 grid-cols-2 gap-[clamp(1rem,3vw,2rem)]">
+      <div className="grid min-h-0 flex-1 grid-cols-2 items-stretch gap-[clamp(1rem,3vw,2rem)]">
         <HostResultColumn
           side="elle"
-          name={COUPLE.elle}
-          emoji="💃"
+          questionId={questionId}
           percent={ellePercent}
           count={result.elle}
           isWinner={winner === "elle"}
@@ -164,8 +174,7 @@ function HostResultsLayout({
         />
         <HostResultColumn
           side="lui"
-          name={COUPLE.lui}
-          emoji="🕺"
+          questionId={questionId}
           percent={luiPercent}
           count={result.lui}
           isWinner={winner === "lui"}
@@ -221,8 +230,7 @@ function HostResultsLayout({
 
 function HostResultColumn({
   side,
-  name,
-  emoji,
+  questionId,
   percent,
   count,
   isWinner,
@@ -230,8 +238,7 @@ function HostResultColumn({
   revealDelayMs,
 }: {
   side: "elle" | "lui";
-  name: string;
-  emoji: string;
+  questionId: number;
   percent: number;
   count: number;
   isWinner: boolean;
@@ -244,13 +251,8 @@ function HostResultColumn({
   return (
     <motion.div
       className={[
-        "flex min-h-0 flex-col overflow-hidden rounded-2xl border-[3px] p-[clamp(0.75rem,2vh,1.5rem)]",
-        isWinner
-          ? "border-(--gold) bg-white shadow-[0_4px_0_rgba(212,168,83,0.35)]"
-          : "border-white/80 bg-white/70",
-        isElle
-          ? "bg-linear-to-b from-pink-50/90 to-white/90"
-          : "bg-linear-to-b from-sky-50/90 to-white/90",
+        "grid min-h-0 grid-rows-[auto_auto_auto] overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.15)]",
+        isWinner ? "ring-[3px] ring-(--gold)" : "",
       ].join(" ")}
       variants={animationVariant}
       animate={
@@ -270,63 +272,35 @@ function HostResultColumn({
           : undefined
       }
     >
-      <div className="shrink-0 text-center">
-        <motion.span
-          className="inline-block text-[clamp(1rem,2.5vmin,1.5rem)]"
-          initial={{ scale: 0, rotate: -20 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{
-            type: "spring",
-            stiffness: 380,
-            damping: 14,
-            delay: revealDelayMs / 1000,
-          }}
-        >
-          {emoji}
-        </motion.span>
-        <p
-          className={[
-            "mt-0.5 text-[clamp(0.6rem,1vmin,0.75rem)] font-extrabold uppercase tracking-[0.15em]",
-            isElle ? "text-pink-500" : "text-sky-500",
-          ].join(" ")}
-        >
-          {isElle ? "Elle" : "Lui"}
-        </p>
-        <p
-          className={[
-            "font-display font-bold leading-none",
-            isElle ? "text-pink-900" : "text-sky-900",
-            "text-[clamp(1rem,2.2vmin,1.5rem)]",
-          ].join(" ")}
-        >
-          {name}
-          {isWinner ? (
-            <motion.span
-              className="inline-block"
-              initial={{ scale: 0, rotate: -30 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 500,
-                damping: 12,
-                delay: 1.05,
-              }}
-            >
-              {" "}
-              🏆
-            </motion.span>
-          ) : (
-            ""
-          )}
-        </p>
+      <div className={choiceCardFluidClass}>
+        <ChoiceAvatar
+          choice={side}
+          questionId={questionId}
+          variant="cover"
+        />
+        {isWinner ? (
+          <motion.span
+            className="absolute top-3 right-3 text-[clamp(1.5rem,4vmin,2.5rem)] drop-shadow-md"
+            initial={{ scale: 0, rotate: -30 }}
+            animate={{ scale: 1, rotate: 0 }}
+            transition={{
+              type: "spring",
+              stiffness: 500,
+              damping: 12,
+              delay: 1.05,
+            }}
+          >
+            🏆
+          </motion.span>
+        ) : null}
       </div>
 
-      <div className="flex min-h-0 flex-1 flex-col items-center justify-center py-1">
+      <div className="flex shrink-0 flex-col items-center px-[clamp(0.5rem,1.5vw,1rem)] py-[clamp(0.5rem,1.5vh,0.75rem)]">
         <motion.span
           className={[
             "font-extrabold tabular-nums leading-none",
             isElle ? "text-pink-600" : "text-sky-600",
-            "text-[clamp(3rem,14vmin,7rem)]",
+            "text-[clamp(2rem,10vmin,5rem)]",
           ].join(" ")}
           initial={{ scale: 0.5, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -341,7 +315,7 @@ function HostResultColumn({
           <span className="text-[0.45em]">%</span>
         </motion.span>
         <motion.span
-          className="mt-1 text-[clamp(0.75rem,1.5vmin,1rem)] font-bold text-(--ink-muted)"
+          className="mt-0.5 text-[clamp(0.7rem,1.3vmin,0.875rem)] font-bold text-(--ink-muted)"
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: revealDelayMs / 1000 + 0.35, duration: 0.35 }}
@@ -352,14 +326,14 @@ function HostResultColumn({
 
       <div
         className={[
-          "shrink-0 overflow-hidden rounded-full",
+          "shrink-0 overflow-hidden",
           isElle ? "bg-pink-100" : "bg-sky-100",
-          "h-[clamp(0.75rem,2.5vh,1.25rem)]",
+          "h-[clamp(0.5rem,1.5vh,0.75rem)]",
         ].join(" ")}
       >
         <motion.div
           className={[
-            "h-full rounded-full",
+            "h-full",
             isElle
               ? "bg-linear-to-r from-pink-400 to-rose-500"
               : "bg-linear-to-r from-sky-400 to-cyan-500",
@@ -378,10 +352,12 @@ function HostResultColumn({
 }
 
 function GuestResultsLayout({
+  questionId,
   questionText,
   result,
   size,
 }: {
+  questionId: number;
   questionText: string;
   result: QuestionResult;
   size: "sm" | "lg";
@@ -422,24 +398,22 @@ function GuestResultsLayout({
         </h2>
       </motion.div>
       <GuestResultBar
-        label={`Elle · ${COUPLE.elle}`}
-        emoji="💃"
+        choice="elle"
+        questionId={questionId}
         percent={ellePercent}
         count={result.elle}
         isWinner={winner === "elle"}
         barClass="bg-linear-to-r from-pink-400 to-rose-400"
-        labelClass="text-pink-600"
         trackClass="bg-pink-100"
         isLarge={isLarge}
       />
       <GuestResultBar
-        label={`Lui · ${COUPLE.lui}`}
-        emoji="🕺"
+        choice="lui"
+        questionId={questionId}
         percent={luiPercent}
         count={result.lui}
         isWinner={winner === "lui"}
         barClass="bg-linear-to-r from-sky-400 to-cyan-400"
-        labelClass="text-sky-600"
         trackClass="bg-sky-100"
         isLarge={isLarge}
       />
@@ -458,82 +432,96 @@ function GuestResultsLayout({
 }
 
 type GuestResultBarProps = {
-  label: string;
-  emoji: string;
+  choice: "elle" | "lui";
+  questionId: number;
   percent: number;
   count: number;
   isWinner: boolean;
   barClass: string;
-  labelClass: string;
   trackClass: string;
   isLarge: boolean;
 };
 
 function GuestResultBar({
-  label,
-  emoji,
+  choice,
+  questionId,
   percent,
   count,
   isWinner,
   barClass,
-  labelClass,
   trackClass,
   isLarge,
 }: GuestResultBarProps) {
+  const isElle = choice === "elle";
+
   return (
     <motion.div
       className={[
-        "rounded-2xl border-2 p-4",
-        isWinner
-          ? "border-(--gold) bg-(--gold-light)/40 shadow-[0_3px_0_rgba(212,168,83,0.3)]"
-          : "border-transparent bg-white/50",
+        "overflow-hidden rounded-3xl bg-white/60 shadow-[0_4px_20px_-6px_rgba(0,0,0,0.12)]",
+        isWinner ? "ring-2 ring-(--gold)" : "",
       ].join(" ")}
       variants={guestFadeUp}
     >
-      <div
-        className={[
-          "mb-2 flex justify-between",
-          isLarge ? "text-xl" : "text-sm",
-        ].join(" ")}
-      >
-        <span className={["font-bold", labelClass].join(" ")}>
-          {emoji} {label}
-          {isWinner ? (
-            <motion.span
-              className="inline-block"
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: 1, rotate: 0 }}
-              transition={{
-                type: "spring",
-                stiffness: 420,
-                damping: 16,
-                delay: 0.35,
-              }}
+      <div className="flex items-stretch gap-3 p-3">
+        <div
+          className={[
+            choiceCardFluidClass,
+            "shrink-0 shadow-sm",
+            isLarge ? "w-24" : "w-16",
+          ].join(" ")}
+        >
+          <ChoiceAvatar choice={choice} questionId={questionId} variant="cover" />
+        </div>
+
+        <div className="flex min-w-0 flex-1 flex-col justify-center gap-2">
+          <div
+            className={[
+              "flex items-center justify-between",
+              isLarge ? "text-xl" : "text-sm",
+            ].join(" ")}
+          >
+            <span
+              className={[
+                "font-extrabold tabular-nums",
+                isElle ? "text-pink-600" : "text-sky-600",
+              ].join(" ")}
             >
-              {" "}
-              🏆
-            </motion.span>
-          ) : (
-            ""
-          )}
-        </span>
-        <span className="font-extrabold text-(--ink)">
-          {percent}% · {count}
-        </span>
-      </div>
-      <div
-        className={[
-          "overflow-hidden rounded-full",
-          trackClass,
-          isLarge ? "h-8" : "h-4",
-        ].join(" ")}
-      >
-        <motion.div
-          className={["h-full rounded-full", barClass].join(" ")}
-          initial={{ width: "0%" }}
-          animate={{ width: `${percent}%` }}
-          transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
-        />
+              {percent}%
+              {isWinner ? (
+                <motion.span
+                  className="ml-1.5 inline-block"
+                  initial={{ scale: 0, rotate: -20 }}
+                  animate={{ scale: 1, rotate: 0 }}
+                  transition={{
+                    type: "spring",
+                    stiffness: 420,
+                    damping: 16,
+                    delay: 0.35,
+                  }}
+                >
+                  🏆
+                </motion.span>
+              ) : null}
+            </span>
+            <span className="font-bold text-(--ink-muted)">
+              {count} vote{count > 1 ? "s" : ""}
+            </span>
+          </div>
+          <div
+            className={[
+              "overflow-hidden rounded-full",
+              trackClass,
+              isLarge ? "h-6" : "h-3.5",
+            ].join(" ")}
+          >
+            <motion.div
+              className={["h-full rounded-full", barClass].join(" ")}
+              initial={{ width: "0%" }}
+              animate={{ width: `${percent}%` }}
+              transition={{ duration: 0.7, ease: "easeOut", delay: 0.15 }}
+            />
+          </div>
+        </div>
       </div>
     </motion.div>
   );

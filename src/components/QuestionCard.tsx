@@ -3,8 +3,13 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { COUPLE, type Choice } from "@/data/couple";
 import type { Question } from "@/data/questions";
+import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import { ChoiceButton } from "@/components/ChoiceButton";
 import { Timer } from "@/components/Timer";
+import {
+  choiceCardFluidClass,
+  choiceCardHostClass,
+} from "@/lib/choice-card-styles";
 
 type DisplaySize = "sm" | "lg" | "host";
 
@@ -21,54 +26,74 @@ type QuestionCardProps = {
   size?: DisplaySize;
 };
 
-function HostCoupleStrip() {
+function HostCoupleStrip({
+  questionId,
+  showImage,
+}: {
+  questionId: number;
+  showImage: boolean;
+}) {
+  if (!showImage) {
+    return null;
+  }
+
   return (
-    <div className="flex shrink-0 items-stretch gap-2 rounded-2xl border-2 border-(--gold)/35 bg-white/85 p-2">
-      <div className="flex flex-1 flex-col items-center justify-center rounded-xl bg-pink-50/90 px-2 py-1 text-center">
-        <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.12em] text-pink-500">
-          💃 Elle
-        </span>
-        <span className="font-display text-[clamp(0.9rem,2vmin,1.15rem)] font-bold text-pink-900">
-          {COUPLE.elle}
-        </span>
+    <div className="flex shrink-0 items-center justify-center gap-[clamp(0.5rem,1.5vw,1rem)] px-[clamp(0.25rem,1vw,0.75rem)]">
+      <div className="flex flex-1 justify-center">
+        <div
+          className={[
+            choiceCardHostClass,
+            "shadow-[0_8px_28px_-6px_rgba(236,72,153,0.3)]",
+          ].join(" ")}
+        >
+          <ChoiceAvatar choice="elle" questionId={questionId} variant="cover" />
+        </div>
       </div>
-      <div className="flex items-center px-1">
+      <div className="flex shrink-0 items-center px-0.5">
         <span className="font-display text-[clamp(0.85rem,1.8vmin,1rem)] font-bold italic text-(--gold)">
           VS
         </span>
       </div>
-      <div className="flex flex-1 flex-col items-center justify-center rounded-xl bg-sky-50/90 px-2 py-1 text-center">
-        <span className="text-[0.55rem] font-extrabold uppercase tracking-[0.12em] text-sky-500">
-          🕺 Lui
-        </span>
-        <span className="font-display text-[clamp(0.9rem,2vmin,1.15rem)] font-bold text-sky-900">
-          {COUPLE.lui}
-        </span>
+      <div className="flex flex-1 justify-center">
+        <div
+          className={[
+            choiceCardHostClass,
+            "shadow-[0_8px_28px_-6px_rgba(14,165,233,0.3)]",
+          ].join(" ")}
+        >
+          <ChoiceAvatar choice="lui" questionId={questionId} variant="cover" />
+        </div>
       </div>
     </div>
   );
 }
 
-function CouplePreview({ size }: { size: DisplaySize }) {
+function CouplePreview({
+  questionId,
+  size,
+  showImage,
+}: {
+  questionId: number;
+  size: DisplaySize;
+  showImage: boolean;
+}) {
   const isLarge = size === "lg";
+
+  if (!showImage) {
+    return null;
+  }
 
   return (
     <div
-      className={["flex items-stretch justify-center", isLarge ? "gap-8" : "gap-3"].join(" ")}
+      className={["flex items-stretch justify-center", isLarge ? "gap-6" : "gap-3"].join(" ")}
     >
-      <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-pink-300/70 bg-pink-50/80 px-4 py-4 text-center">
-        <span className="text-lg">💃</span>
-        <span className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-pink-500">
-          Elle
-        </span>
-        <span
-          className={[
-            "mt-1 font-display font-bold text-pink-900",
-            isLarge ? "text-3xl" : "text-xl",
-          ].join(" ")}
-        >
-          {COUPLE.elle}
-        </span>
+      <div
+        className={[
+          choiceCardFluidClass,
+          "flex-1 shadow-[0_8px_28px_-6px_rgba(236,72,153,0.28)]",
+        ].join(" ")}
+      >
+        <ChoiceAvatar choice="elle" questionId={questionId} variant="cover" />
       </div>
       <div className="flex items-center">
         <span
@@ -80,19 +105,13 @@ function CouplePreview({ size }: { size: DisplaySize }) {
           VS
         </span>
       </div>
-      <div className="flex flex-1 flex-col items-center justify-center rounded-3xl border-2 border-dashed border-sky-300/70 bg-sky-50/80 px-4 py-4 text-center">
-        <span className="text-lg">🕺</span>
-        <span className="mt-1 text-xs font-bold uppercase tracking-[0.2em] text-sky-500">
-          Lui
-        </span>
-        <span
-          className={[
-            "mt-1 font-display font-bold text-sky-900",
-            isLarge ? "text-3xl" : "text-xl",
-          ].join(" ")}
-        >
-          {COUPLE.lui}
-        </span>
+      <div
+        className={[
+          choiceCardFluidClass,
+          "flex-1 shadow-[0_8px_28px_-6px_rgba(14,165,233,0.28)]",
+        ].join(" ")}
+      >
+        <ChoiceAvatar choice="lui" questionId={questionId} variant="cover" />
       </div>
     </div>
   );
@@ -112,6 +131,7 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const isHost = size === "host";
   const isLarge = size === "lg";
+  const showImages = !showTimer || Boolean(isExpired);
 
   if (isHost) {
     return (
@@ -130,7 +150,7 @@ export function QuestionCard({
         </div>
 
         <div className="shrink-0">
-          <HostCoupleStrip />
+          <HostCoupleStrip questionId={question.id} showImage={showImages} />
         </div>
       </div>
     );
@@ -176,26 +196,34 @@ export function QuestionCard({
         ) : null}
         {questionBlock}
         {showChoices ? (
-          <div className="grid gap-4">
+          <div className="grid grid-cols-2 gap-3">
             <ChoiceButton
               choice="elle"
               name={COUPLE.elle}
+              questionId={question.id}
               onSelect={onSelect}
               disabled={isSubmitting || isExpired}
               selected={selectedChoice === "elle"}
+              showImage={showImages}
               size={isLarge ? "lg" : "sm"}
             />
             <ChoiceButton
               choice="lui"
               name={COUPLE.lui}
+              questionId={question.id}
               onSelect={onSelect}
               disabled={isSubmitting || isExpired}
               selected={selectedChoice === "lui"}
+              showImage={showImages}
               size={isLarge ? "lg" : "sm"}
             />
           </div>
         ) : (
-          <CouplePreview size={size} />
+          <CouplePreview
+            questionId={question.id}
+            size={size}
+            showImage={showImages}
+          />
         )}
       </motion.div>
     </AnimatePresence>

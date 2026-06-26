@@ -1,20 +1,26 @@
+import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import type { Choice } from "@/data/couple";
+import { choiceCardFluidClass } from "@/lib/choice-card-styles";
 
 type ChoiceButtonProps = {
   choice: Choice;
   name: string;
+  questionId: number;
   onSelect: (choice: Choice) => void;
   disabled?: boolean;
   selected?: boolean;
+  showImage?: boolean;
   size?: "sm" | "lg";
 };
 
 export function ChoiceButton({
   choice,
   name,
+  questionId,
   onSelect,
   disabled = false,
   selected = false,
+  showImage = true,
   size = "sm",
 }: ChoiceButtonProps) {
   const isElle = choice === "elle";
@@ -26,68 +32,54 @@ export function ChoiceButton({
       disabled={disabled}
       onClick={() => onSelect(choice)}
       aria-pressed={selected}
+      aria-label={`Voter pour ${name}`}
       className={[
-        "group relative flex w-full cursor-pointer items-center gap-4 overflow-hidden rounded-3xl border-2 px-4 py-4 text-left text-white transition-all duration-200",
-        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
+        choiceCardFluidClass,
+        "cursor-pointer transition-all duration-200",
+        "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--gold)",
         "active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55",
-        isLarge ? "min-h-32 px-5 py-5" : "min-h-20",
         isElle
-          ? "border-pink-300/80 bg-linear-to-br from-pink-400 via-pink-500 to-rose-600 shadow-lg shadow-pink-500/30"
-          : "border-sky-300/80 bg-linear-to-br from-sky-400 via-sky-500 to-cyan-600 shadow-lg shadow-sky-500/30",
-        selected
-          ? "ring-4 ring-white/90 ring-offset-2 ring-offset-background brightness-105"
-          : "hover:brightness-110",
+          ? "shadow-[0_8px_24px_-4px_rgba(236,72,153,0.35)]"
+          : "shadow-[0_8px_24px_-4px_rgba(14,165,233,0.35)]",
+        selected ? "ring-[3px] ring-(--gold) ring-offset-2 ring-offset-background" : "",
       ].join(" ")}
     >
-      <span
-        className={[
-          "flex shrink-0 items-center justify-center rounded-2xl bg-white/20 backdrop-blur-sm",
-          isLarge ? "h-16 w-16 text-3xl" : "h-12 w-12 text-2xl",
-        ].join(" ")}
-      >
-        {isElle ? "💃" : "🕺"}
-      </span>
+      <ChoiceAvatar
+        key={`${questionId}-${choice}-${showImage}`}
+        choice={choice}
+        questionId={questionId}
+        variant="cover"
+        showImage={showImage}
+      />
 
-      <span className="flex min-w-0 flex-1 flex-col gap-0.5">
-        <span className="text-[0.65rem] font-extrabold uppercase tracking-[0.22em] text-white/80">
-          {isElle ? "Elle" : "Lui"}
-        </span>
+      {selected ? (
+        <span className="pointer-events-none absolute inset-0 bg-black/20" aria-hidden />
+      ) : null}
+
+      {selected ? (
         <span
           className={[
-            "font-display font-bold leading-tight text-white",
-            isLarge ? "text-3xl" : "text-xl",
+            "absolute top-2.5 right-2.5 flex items-center justify-center rounded-full border-2 border-white bg-white shadow-lg",
+            isLarge ? "h-9 w-9" : "h-8 w-8",
+            isElle ? "text-pink-600" : "text-sky-600",
           ].join(" ")}
+          aria-hidden
         >
-          {name}
+          <svg
+            viewBox="0 0 16 16"
+            className={isLarge ? "h-4 w-4" : "h-3.5 w-3.5"}
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2.5"
+          >
+            <path
+              d="M3 8.5l3.5 3.5 6.5-7"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          </svg>
         </span>
-      </span>
-
-      <span
-        className={[
-          "flex shrink-0 items-center justify-center rounded-full border-2 transition-all duration-200",
-          isLarge ? "h-8 w-8" : "h-7 w-7",
-          selected
-            ? isElle
-              ? "border-white/90 bg-white text-pink-600"
-              : "border-white/90 bg-white text-sky-600"
-            : "border-white/40 bg-white/10 text-transparent",
-        ].join(" ")}
-        aria-hidden
-      >
-        <svg
-          viewBox="0 0 16 16"
-          className={isLarge ? "h-4 w-4" : "h-3.5 w-3.5"}
-          fill="none"
-          stroke="currentColor"
-          strokeWidth="2.5"
-        >
-          <path
-            d="M3 8.5l3.5 3.5 6.5-7"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          />
-        </svg>
-      </span>
+      ) : null}
     </button>
   );
 }

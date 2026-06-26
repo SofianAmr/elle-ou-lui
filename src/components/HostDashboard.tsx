@@ -272,61 +272,65 @@ export function HostDashboard() {
             : "px-4 pt-2 pb-[max(0.75rem,env(safe-area-inset-bottom,0px))]",
         ].join(" ")}
       >
-        {session.phase !== "lobby" && session.phase !== "finished" ? (
-          <div className="mb-[clamp(0.25rem,1vh,0.5rem)] shrink-0">
-            <ProgressBar
-              current={session.currentQuestionIndex + 1}
-              total={QUESTIONS.length}
-              size="host"
-              extraLabel={
-                session.phase === "voting" ? voteStatsLabel : undefined
-              }
-            />
-          </div>
-        ) : null}
+        <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+          <AnimatePresence mode="wait">
+            {session.phase === "lobby" ? (
+              <motion.div
+                key="lobby"
+                className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[clamp(0.5rem,2vh,1rem)] text-center"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <div className="animate-float text-[clamp(2.5rem,6vmin,4rem)]">
+                  💍
+                </div>
+                <h1 className="wedding-title text-[clamp(2rem,5vmin,3.5rem)] italic">
+                  Elle ou Lui ?
+                </h1>
+                <p className="text-[clamp(1.125rem,2.5vmin,1.75rem)] font-bold text-(--rose-gold)">
+                  {COUPLE.elle} & {COUPLE.lui}
+                </p>
+                <p className="rounded-2xl border-2 border-dashed border-(--gold)/50 bg-white/60 px-6 py-3 text-[clamp(1rem,2vmin,1.25rem)] font-extrabold text-(--ink)">
+                  {stats.connectedCount} personne
+                  {stats.connectedCount > 1 ? "s" : ""} connectée
+                  {stats.connectedCount > 1 ? "s" : ""}
+                </p>
+                <button
+                  type="button"
+                  disabled={isActing}
+                  onClick={() => runAction("start")}
+                  className="btn-primary mt-1"
+                >
+                  Lancer la partie 🚀
+                </button>
+              </motion.div>
+            ) : null}
 
-        {session.phase === "lobby" ? (
-          <div className="flex min-h-0 flex-1 flex-col items-center justify-center gap-[clamp(0.5rem,2vh,1rem)] text-center">
-            <div className="animate-float text-[clamp(2.5rem,6vmin,4rem)]">
-              💍
-            </div>
-            <h1 className="wedding-title text-[clamp(2rem,5vmin,3.5rem)] italic">
-              Elle ou Lui ?
-            </h1>
-            <p className="text-[clamp(1.125rem,2.5vmin,1.75rem)] font-bold text-(--rose-gold)">
-              {COUPLE.elle} & {COUPLE.lui}
-            </p>
-            <p className="rounded-2xl border-2 border-dashed border-(--gold)/50 bg-white/60 px-6 py-3 text-[clamp(1rem,2vmin,1.25rem)] font-extrabold text-(--ink)">
-              {stats.connectedCount} personne
-              {stats.connectedCount > 1 ? "s" : ""} connectée
-              {stats.connectedCount > 1 ? "s" : ""}
-            </p>
-            <button
-              type="button"
-              disabled={isActing}
-              onClick={() => runAction("start")}
-              className="btn-primary mt-1"
-            >
-              Lancer la partie 🚀
-            </button>
-          </div>
-        ) : null}
-
-        <AnimatePresence mode="wait">
-          {session.phase === "voting" && question ? (
-            <motion.div
-              key={`voting-${question.id}`}
-              className="flex min-h-0 flex-1 flex-col overflow-hidden"
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -16 }}
-              transition={{ duration: 0.28, ease: "easeOut" }}
-            >
-              <div className="min-h-0 flex-1 overflow-hidden">
+            {session.phase === "voting" && question ? (
+              <motion.div
+                key={`voting-${question.id}`}
+                className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                initial={{ opacity: 0, y: 16 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -16 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <div className="mb-[clamp(0.25rem,1vh,0.5rem)] shrink-0">
+                  <ProgressBar
+                    current={session.currentQuestionIndex + 1}
+                    total={QUESTIONS.length}
+                    size="host"
+                    extraLabel={voteStatsLabel}
+                  />
+                </div>
+                <div className="min-h-0 flex-1 overflow-hidden">
                 <QuestionCard
                   question={question}
                   onSelect={() => undefined}
                   isSubmitting={false}
+                  isExpired={isExpired}
                   remainingSeconds={remainingSeconds}
                   timerProgress={progress}
                   showTimer
@@ -350,17 +354,25 @@ export function HostDashboard() {
             </motion.div>
           ) : null}
 
-          {session.phase === "results" && result && question ? (
-            <motion.div
-              key={`results-${question.id}`}
-              className="flex min-h-0 flex-1 flex-col"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.28, ease: "easeOut" }}
-            >
-              <div className="min-h-0 flex-1 overflow-hidden">
+            {session.phase === "results" && result && question ? (
+              <motion.div
+                key={`results-${question.id}`}
+                className="flex min-h-0 flex-1 flex-col"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <div className="mb-[clamp(0.25rem,1vh,0.5rem)] shrink-0">
+                  <ProgressBar
+                    current={session.currentQuestionIndex + 1}
+                    total={QUESTIONS.length}
+                    size="host"
+                  />
+                </div>
+                <div className="min-h-0 flex-1 overflow-hidden">
                 <ResultsPanel
+                  questionId={question.id}
                   questionText={question.text}
                   result={result}
                   size="host"
@@ -381,23 +393,24 @@ export function HostDashboard() {
             </motion.div>
           ) : null}
 
-          {session.phase === "finished" ? (
-            <motion.div
-              key="finished"
-              className="flex min-h-0 flex-1 flex-col overflow-hidden"
-              initial={{ opacity: 0, scale: 0.96 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.98 }}
-              transition={{ duration: 0.28, ease: "easeOut" }}
-            >
-              <GameFinishedScreen
-                size="host"
-                onReset={() => runAction("reset")}
-                isActing={isActing}
-              />
-            </motion.div>
-          ) : null}
-        </AnimatePresence>
+            {session.phase === "finished" ? (
+              <motion.div
+                key="finished"
+                className="flex min-h-0 flex-1 flex-col overflow-hidden"
+                initial={{ opacity: 0, scale: 0.96 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.98 }}
+                transition={{ duration: 0.28, ease: "easeOut" }}
+              >
+                <GameFinishedScreen
+                  size="host"
+                  onReset={() => runAction("reset")}
+                  isActing={isActing}
+                />
+              </motion.div>
+            ) : null}
+          </AnimatePresence>
+        </div>
 
         {actionError ? (
           <p className="shrink-0 pt-1 text-center text-sm font-semibold text-rose-700">

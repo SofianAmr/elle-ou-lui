@@ -200,7 +200,11 @@ export function GuestGame({ code }: GuestGameProps) {
   if (session.phase === "results" && result && question) {
     return (
       <GuestGameShell session={session}>
-        <ResultsPanel questionText={question.text} result={result} />
+        <ResultsPanel
+          questionId={question.id}
+          questionText={question.text}
+          result={result}
+        />
         <p className="mt-8 text-center font-semibold text-(--ink-muted)">
           Prochaine question bientôt...
         </p>
