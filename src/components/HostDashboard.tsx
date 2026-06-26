@@ -126,6 +126,7 @@ export function HostDashboard() {
     if (
       session?.phase !== "voting" ||
       !isExpired ||
+      !result ||
       autoResultsQuestionRef.current === session.currentQuestionIndex
     ) {
       return;
@@ -142,6 +143,7 @@ export function HostDashboard() {
   }, [
     isExpired,
     performAction,
+    result,
     session?.currentQuestionIndex,
     session?.phase,
   ]);
@@ -354,7 +356,7 @@ export function HostDashboard() {
             </motion.div>
           ) : null}
 
-            {session.phase === "results" && result && question ? (
+            {session.phase === "results" && question ? (
               <motion.div
                 key={`results-${question.id}`}
                 className="flex min-h-0 flex-1 flex-col"
@@ -374,7 +376,14 @@ export function HostDashboard() {
                 <ResultsPanel
                   questionId={question.id}
                   questionText={question.text}
-                  result={result}
+                  result={
+                    result ?? {
+                      questionId: question.id,
+                      elle: 0,
+                      lui: 0,
+                      total: 0,
+                    }
+                  }
                   size="host"
                 />
               </div>

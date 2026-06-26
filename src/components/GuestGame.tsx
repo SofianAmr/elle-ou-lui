@@ -1,16 +1,39 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import { useCallback, useState } from "react";
 import { useRouter } from "next/navigation";
 import { DecorativeBackground } from "@/components/DecorativeBackground";
 import { COUPLE, type Choice } from "@/data/couple";
 import type { Question } from "@/data/questions";
 import { QUESTIONS } from "@/data/questions";
-import { QuestionCard } from "@/components/QuestionCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { GameFinishedScreen } from "@/components/GameFinishedScreen";
-import { ResultsPanel } from "@/components/ResultsPanel";
 import { WaitingScreen } from "@/components/WaitingScreen";
+
+const QuestionCard = dynamic(
+  () =>
+    import("@/components/QuestionCard").then((module) => module.QuestionCard),
+  {
+    loading: () => (
+      <p className="text-center font-semibold text-(--ink-muted)">
+        Chargement de la question...
+      </p>
+    ),
+  },
+);
+
+const ResultsPanel = dynamic(
+  () =>
+    import("@/components/ResultsPanel").then((module) => module.ResultsPanel),
+  {
+    loading: () => (
+      <p className="text-center font-semibold text-(--ink-muted)">
+        Calcul des résultats...
+      </p>
+    ),
+  },
+);
 import { useGameSession } from "@/hooks/useGameSession";
 import { useParticipant } from "@/hooks/useParticipant";
 import { useQuestionResult } from "@/hooks/useQuestionResult";
@@ -48,14 +71,12 @@ type GuestVotingScreenProps = {
   code: string;
   session: GameSession;
   question: Question;
-  isInteractive?: boolean;
 };
 
 function GuestVotingScreen({
   code,
   session,
   question,
-  isInteractive = true,
 }: GuestVotingScreenProps) {
   const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
   const [hasVoted, setHasVoted] = useState(false);
@@ -65,7 +86,7 @@ function GuestVotingScreen({
 
   const handleSelect = useCallback(
     async (choice: Choice) => {
-      if (!isInteractive || isExpired || choice === selectedChoice) {
+      if (isExpired || choice === selectedChoice) {
         return;
       }
 
@@ -102,7 +123,7 @@ function GuestVotingScreen({
         );
       }
     },
-    [code, hasVoted, isExpired, isInteractive, question.id, selectedChoice],
+    [code, hasVoted, isExpired, question.id, selectedChoice],
   );
 
   return (
@@ -112,7 +133,7 @@ function GuestVotingScreen({
         onSelect={handleSelect}
         isSubmitting={false}
         selectedChoice={selectedChoice}
-        isExpired={isExpired || !isInteractive}
+        isExpired={isExpired}
         remainingSeconds={remainingSeconds}
         timerProgress={progress}
         showTimer
@@ -137,7 +158,8 @@ export function GuestGame({ code }: GuestGameProps) {
   useParticipant(code);
 
   const question = session ? QUESTIONS[session.currentQuestionIndex] : null;
-  const shouldLoadResults = session?.phase === "results";
+  const shouldLoadResults =
+    session?.phase === "voting" || session?.phase === "results";
   const { result } = useQuestionResult(
     code,
     shouldLoadResults ? (question?.id ?? null) : null,
@@ -197,7 +219,17 @@ export function GuestGame({ code }: GuestGameProps) {
     );
   }
 
-  if (session.phase === "results" && result && question) {
+  if (session.phase === "results" && question) {
+    if (!result) {
+      return (
+        <GuestGameShell session={session}>
+          <p className="text-center font-semibold text-(--ink-muted)">
+            Calcul des résultats...
+          </p>
+        </GuestGameShell>
+      );
+    }
+
     return (
       <GuestGameShell session={session}>
         <ResultsPanel
@@ -212,17 +244,13 @@ export function GuestGame({ code }: GuestGameProps) {
     );
   }
 
-  if (
-    (session.phase === "voting" || session.phase === "results") &&
-    question
-  ) {
+  if (session.phase === "voting" && question) {
     return (
       <GuestVotingScreen
         key={session.currentQuestionIndex}
         code={code}
         session={session}
         question={question}
-        isInteractive={session.phase === "voting"}
       />
     );
   }

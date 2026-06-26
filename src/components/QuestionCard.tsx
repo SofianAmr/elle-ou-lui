@@ -113,7 +113,7 @@ export function QuestionCard({
 }: QuestionCardProps) {
   const isHost = size === "host";
   const isLarge = size === "lg";
-  const showImages = !showTimer || Boolean(isExpired);
+  const showImages = isHost ? false : !showTimer || Boolean(isExpired);
 
   if (isHost) {
     return (
