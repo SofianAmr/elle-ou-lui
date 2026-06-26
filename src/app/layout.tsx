@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from "next";
+import { Analytics } from "@vercel/analytics/next";
 import { Nunito, Playfair_Display } from "next/font/google";
 import "./globals.css";
 
@@ -38,6 +39,7 @@ export default function RootLayout({
     >
       <body className="h-full min-h-full wedding-bg text-(--ink)">
         {children}
+        <Analytics />
       </body>
     </html>
   );
