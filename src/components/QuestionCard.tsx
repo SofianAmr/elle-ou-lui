@@ -178,25 +178,21 @@ export function QuestionCard({
         ) : null}
         {questionBlock}
         {showChoices ? (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid gap-4">
             <ChoiceButton
               choice="elle"
               name={COUPLE.elle}
-              questionId={question.id}
               onSelect={onSelect}
               disabled={isSubmitting || isExpired}
               selected={selectedChoice === "elle"}
-              showImage={showImages}
               size={isLarge ? "lg" : "sm"}
             />
             <ChoiceButton
               choice="lui"
               name={COUPLE.lui}
-              questionId={question.id}
               onSelect={onSelect}
               disabled={isSubmitting || isExpired}
               selected={selectedChoice === "lui"}
-              showImage={showImages}
               size={isLarge ? "lg" : "sm"}
             />
           </div>
