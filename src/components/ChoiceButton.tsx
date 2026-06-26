@@ -1,6 +1,5 @@
 import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import type { Choice } from "@/data/couple";
-import { choiceCardFluidClass } from "@/lib/choice-card-styles";
 
 type ChoiceButtonProps = {
   choice: Choice;
@@ -34,8 +33,7 @@ export function ChoiceButton({
       aria-pressed={selected}
       aria-label={`Voter pour ${name}`}
       className={[
-        choiceCardFluidClass,
-        "cursor-pointer transition-all duration-200",
+        "relative aspect-[3/4] w-full cursor-pointer overflow-hidden rounded-3xl transition-all duration-200",
         "focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-(--gold)",
         "active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-55",
         isElle

@@ -6,10 +6,6 @@ import type { Question } from "@/data/questions";
 import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import { ChoiceButton } from "@/components/ChoiceButton";
 import { Timer } from "@/components/Timer";
-import {
-  choiceCardFluidClass,
-  choiceCardHostClass,
-} from "@/lib/choice-card-styles";
 
 type DisplaySize = "sm" | "lg" | "host";
 
@@ -38,31 +34,17 @@ function HostCoupleStrip({
   }
 
   return (
-    <div className="flex shrink-0 items-center justify-center gap-[clamp(0.5rem,1.5vw,1rem)] px-[clamp(0.25rem,1vw,0.75rem)]">
-      <div className="flex flex-1 justify-center">
-        <div
-          className={[
-            choiceCardHostClass,
-            "shadow-[0_8px_28px_-6px_rgba(236,72,153,0.3)]",
-          ].join(" ")}
-        >
-          <ChoiceAvatar choice="elle" questionId={questionId} variant="cover" />
-        </div>
+    <div className="flex shrink-0 items-stretch gap-[clamp(0.5rem,1.5vw,1rem)] px-[clamp(0.25rem,1vw,0.75rem)]">
+      <div className="relative aspect-[4/3] min-h-[clamp(6rem,18vh,12rem)] flex-1 overflow-hidden rounded-3xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.3)]">
+        <ChoiceAvatar choice="elle" questionId={questionId} variant="cover" />
       </div>
-      <div className="flex shrink-0 items-center px-0.5">
+      <div className="flex items-center px-0.5">
         <span className="font-display text-[clamp(0.85rem,1.8vmin,1rem)] font-bold italic text-(--gold)">
           VS
         </span>
       </div>
-      <div className="flex flex-1 justify-center">
-        <div
-          className={[
-            choiceCardHostClass,
-            "shadow-[0_8px_28px_-6px_rgba(14,165,233,0.3)]",
-          ].join(" ")}
-        >
-          <ChoiceAvatar choice="lui" questionId={questionId} variant="cover" />
-        </div>
+      <div className="relative aspect-[4/3] min-h-[clamp(6rem,18vh,12rem)] flex-1 overflow-hidden rounded-3xl shadow-[0_8px_28px_-6px_rgba(14,165,233,0.3)]">
+        <ChoiceAvatar choice="lui" questionId={questionId} variant="cover" />
       </div>
     </div>
   );
@@ -89,8 +71,8 @@ function CouplePreview({
     >
       <div
         className={[
-          choiceCardFluidClass,
-          "flex-1 shadow-[0_8px_28px_-6px_rgba(236,72,153,0.28)]",
+          "relative flex-1 overflow-hidden rounded-3xl shadow-[0_8px_28px_-6px_rgba(236,72,153,0.28)]",
+          isLarge ? "aspect-[3/4] min-h-64" : "aspect-[3/4] min-h-40",
         ].join(" ")}
       >
         <ChoiceAvatar choice="elle" questionId={questionId} variant="cover" />
@@ -107,8 +89,8 @@ function CouplePreview({
       </div>
       <div
         className={[
-          choiceCardFluidClass,
-          "flex-1 shadow-[0_8px_28px_-6px_rgba(14,165,233,0.28)]",
+          "relative flex-1 overflow-hidden rounded-3xl shadow-[0_8px_28px_-6px_rgba(14,165,233,0.28)]",
+          isLarge ? "aspect-[3/4] min-h-64" : "aspect-[3/4] min-h-40",
         ].join(" ")}
       >
         <ChoiceAvatar choice="lui" questionId={questionId} variant="cover" />

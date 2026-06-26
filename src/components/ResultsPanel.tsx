@@ -5,7 +5,6 @@ import { motion } from "framer-motion";
 import { ChoiceAvatar } from "@/components/ChoiceAvatar";
 import { COUPLE } from "@/data/couple";
 import { getPercent } from "@/lib/game";
-import { choiceCardFluidClass } from "@/lib/choice-card-styles";
 import type { QuestionResult } from "@/types";
 
 type DisplaySize = "sm" | "lg" | "host";
@@ -251,7 +250,7 @@ function HostResultColumn({
   return (
     <motion.div
       className={[
-        "grid min-h-0 grid-rows-[auto_auto_auto] overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.15)]",
+        "grid h-full min-h-0 grid-rows-[minmax(0,1fr)_auto_auto] overflow-hidden rounded-3xl bg-white/80 shadow-[0_8px_32px_-8px_rgba(0,0,0,0.15)]",
         isWinner ? "ring-[3px] ring-(--gold)" : "",
       ].join(" ")}
       variants={animationVariant}
@@ -272,7 +271,7 @@ function HostResultColumn({
           : undefined
       }
     >
-      <div className={choiceCardFluidClass}>
+      <div className="relative min-h-[clamp(8rem,28vh,18rem)] overflow-hidden">
         <ChoiceAvatar
           choice={side}
           questionId={questionId}
@@ -465,9 +464,8 @@ function GuestResultBar({
       <div className="flex items-stretch gap-3 p-3">
         <div
           className={[
-            choiceCardFluidClass,
-            "shrink-0 shadow-sm",
-            isLarge ? "w-24" : "w-16",
+            "relative shrink-0 overflow-hidden rounded-2xl shadow-sm",
+            isLarge ? "h-28 w-[4.5rem]" : "h-[4.5rem] w-16",
           ].join(" ")}
         >
           <ChoiceAvatar choice={choice} questionId={questionId} variant="cover" />
